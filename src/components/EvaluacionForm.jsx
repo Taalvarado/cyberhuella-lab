@@ -3,74 +3,111 @@ import React, { useState } from 'react';
 export default function EvaluacionForm() {
   const [nombre, setNombre] = useState('');
   const [compromiso, setCompromiso] = useState('');
-  const [mensaje, setMensaje] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [mensaje, setMensaje] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMensaje(null);
+    setEnviando(true);
+    setMensaje('');
 
     try {
-      const response = await fetch('https://app.nocodb.com/api/v1/db/data/v1/p_tu_proyecto/Compromisos', {
-        method: 'POST',
+      const response = await fetch("https://app.nocodb.com/api/v3/data/pruqrxfv87uaqxn/m2wq09igdbe725y/records", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'xc-token': 'TU_TOKEN_DE_NOCODB'
+          "Content-Type": "application/json",
+          "xc-token": "nc_pat_pDAgH2uVFbEcNABHCSsgjq1pjnpv3lFJxH1SVtWc"
         },
-        body: JSON.stringify({ NombreEstudiante: nombre, CompromisoSeguridad: compromiso })
+        body: JSON.stringify({
+          fields: {
+            nombre: nombre,
+            compromiso: compromiso
+          }
+        })
       });
 
-      if (!response.ok) throw new Error('Error al conectar con NocoDB');
-
-      setMensaje({ tipo: 'success', texto: '¡Compromiso registrado con éxito en la nube!' });
-      setNombre('');
-      setCompromiso('');
+      if (response.ok) {
+        setMensaje("¡Compromiso guardado con éxito en NocoDB!");
+        setNombre('');
+        setCompromiso('');
+      } else {
+        const errorData = await response.json();
+        console.error("Detalle del error:", errorData);
+        setMensaje("Hubo un error al guardar el registro.");
+      }
     } catch (error) {
-      setMensaje({ tipo: 'success', texto: '¡Registro simulado guardado correctamente en la nube!' });
-      setNombre('');
-      setCompromiso('');
+      console.error("Error de conexión:", error);
+      setMensaje("Error de conexión con el servidor.");
     } finally {
-      setLoading(false);
+      setEnviando(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-      <h3 className="text-lg font-bold text-slate-800 mb-4">Registro de Compromiso Digital</h3>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-700 mb-1">Nombre del Estudiante:</label>
-        <input 
-          type="text" 
-          value={nombre} 
-          onChange={(e) => setNombre(e.target.value)} 
-          required
-          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
-          placeholder="Ej. Carlos Pérez"
-        />
+    <div className="space-y-6 text-slate-100">
+      {/* Encabezado de la Sección */}
+      <div className="flex items-start gap-3 border-b border-slate-800 pb-4">
+        <div className="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 text-lg shrink-0">
+          📝
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-white tracking-wide">
+            Evaluación y Registro de Actividad (NocoDB)
+          </h3>
+          <p className="text-sm text-slate-400 mt-1">
+            Responde a la pregunta final del módulo y envía tu resultado a la base de datos central en la nube.
+          </p>
+        </div>
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-700 mb-1">Tu regla de oro en Ciberseguridad:</label>
-        <textarea 
-          value={compromiso} 
-          onChange={(e) => setCompromiso(e.target.value)} 
-          required
-          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
-          placeholder="Ej. No compartir contraseñas..."
-        />
-      </div>
-      <button 
-        type="submit" 
-        disabled={loading}
-        className="w-full bg-cyan-600 text-white font-medium py-2 rounded-lg hover:bg-cyan-700 transition text-sm"
-      >
-        {loading ? 'Guardando...' : 'Enviar Registro a la Nube'}
-      </button>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            Nombre del Estudiante:
+          </label>
+          <input 
+            type="text" 
+            value={nombre} 
+            onChange={(e) => setNombre(e.target.value)} 
+            required
+            placeholder="Ej. Juan Pérez"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400 transition"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            Tu Compromiso de Ciberseguridad / Reflexión:
+          </label>
+          <textarea 
+            value={compromiso} 
+            onChange={(e) => setCompromiso(e.target.value)} 
+            required
+            rows={4}
+            placeholder="Escribe tu reflexión aquí..."
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400 transition resize-none"
+          />
+        </div>
+
+        {/* Botón Brillante con Resplandor Cian */}
+        <button 
+          type="submit" 
+          disabled={enviando}
+          className="w-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold py-3.5 px-6 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          <span>📤</span> {enviando ? "Guardando en NocoDB..." : "Enviar Compromiso"}
+        </button>
+      </form>
+
       {mensaje && (
-        <p className={`mt-4 text-sm text-center ${mensaje.tipo === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-          {mensaje.texto}
-        </p>
+        <div className={`p-4 rounded-xl text-center text-sm font-semibold ${
+          mensaje.includes("éxito") 
+            ? "bg-emerald-950/80 border border-emerald-800 text-emerald-400" 
+            : "bg-rose-950/80 border border-rose-800 text-rose-400"
+        }`}>
+          {mensaje}
+        </div>
       )}
-    </form>
+    </div>
   );
 }
